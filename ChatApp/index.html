@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"/>
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+
+    <script src="/socket.io/socket.io.js"node></script>
+
+  </head>
+  <body style="background-color: rgb(223, 131, 241);">
+ <h1 style="text-align: center;">Chit'O'Chat</h1>
+  <h2 style="text-align:center;">Introduce yourself with others🤩❤️</h2>
+    <div class="container">
+      <br />
+      <div class="jumbotron">
+      <div class="row">
+      <div class="col-lg-10 mb-6">
+        <h3>Send us a Message</h3>
+          <div class="control-group form-group">
+            <div class="controls">
+              <label>Full Name:</label>
+              <input type="text" class="form-control" id="name" required data-validation-required-message="Please enter your name.">
+              <p class="help-block"></p>
+            </div>
+          </div>
+          <div class="control-group form-group">
+            <div class="controls">
+              <label>Email Address:</label>
+              <input type="email" class="form-control" id="email" required data-validation-required-message="Please enter your email address.">
+            </div>
+          </div>
+          <div class="control-group form-group">
+            <div class="controls">
+              <label>Message:</label>
+              <textarea rows="5" cols="100" class="form-control" id="message" required data-validation-required-message="Please enter your message" maxlength="999" style="resize:none"></textarea>
+            </div>
+          </div>
+          <div id="success"></div>
+          <button class="btn btn-primary btn-success" id="sendMessageButton">Send Message</button>
+      </div>
+    </div>
+  </div>
+  </div>
+          <div id="messages"></div>
+
+  </div>
+    <script>
+      var socket=io();
+    $(()=>{
+      $("#sendMessageButton").click(()=>{
+        var message={name: $("#name").val(),email: $("#email").val(),
+        message: $("#message").val()}
+        postMessage(message)
+      })
+      getMessages()
+    })
+    socket.on('message',addMessage);
+
+    function addMessage(message){
+      $("#messages").append(`<h5> ${message.name} </h5> <p> ${message.email} </p> <p> ${message.message} </p>`)
+    }
+
+    function getMessages(){
+      $.get('https://damp-beyond-42165.herokuapp.com/messages',(data)=>{
+          data.forEach(addMessage);
+      })
+    }
+
+    function postMessage(message){
+      $.post('https://damp-beyond-42165.herokuapp.com/messages',message)
+    }
+
+    </script>
+  </body>
+</html>
