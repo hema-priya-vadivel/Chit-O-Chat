@@ -88,13 +88,13 @@
     }
 
     function getMessages(){
-      $.get('https://damp-beyond-42165.herokuapp.com/messages',(data)=>{
+      $.get('/messages',(data)=>{
           data.forEach(addMessage);
       })
     }
 
     function postMessage(message){
-      $.post('https://damp-beyond-42165.herokuapp.com/messages',message)
+      $.post('/messages',message)
     }
 
     </script>

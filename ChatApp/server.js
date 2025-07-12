@@ -16,7 +16,7 @@ var Message=mongoose.model('Message',{
   message:String
 });
 
-var dbUrl="mongodb+srv://database_username:<password>@cluster0.cjtbt.mongodb.net/database_name?retryWrites=true&w=majority";
+var dbUrl = process.env.MONGODB_URI || "mongodb://localhost:27017/chitchat";
 
 app.get('/messages',(req,res)=>
 {
@@ -25,13 +25,16 @@ app.get('/messages',(req,res)=>
   });
 });
 
-app.post('/messages',(req,res)=>{
-  var message=new Message(req.body);
-  message.save((err)=>{
-     if(err)
-      
-      io.emit('message',req.body);
+app.post('/messages', (req, res) => {
+  var message = new Message(req.body);
+  message.save((err) => {
+    if (err){
+      console.error('Error saving message:', err);
+      res.sendStatus(500);
+    } else {
+      io.emit('message', req.body);
       res.sendStatus(200);
+    }
   });
 });
 
@@ -40,7 +43,11 @@ io.on('connection',(socket)=>{
 });
 
 mongoose.connect(dbUrl,(err)=>{
-  console.log('MongoDB connection successful');
+  if (err) {
+    console.error('MongoDB connection error:', err);
+  } else {
+    console.log('MongoDB connection successful');
+  }
 });
 
 var server=http.listen(port,()=>{
