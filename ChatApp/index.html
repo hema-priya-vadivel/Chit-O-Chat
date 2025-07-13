@@ -54,6 +54,7 @@
             <div class="controls">
               <label>Email Address:</label>
               <input type="email" class="form-control" id="email" required data-validation-required-message="Please enter your email address.">
+              <p class="help-block" id="email-error" style="color:red;"></p>
             </div>
           </div>
           <div class="control-group form-group">
@@ -63,7 +64,9 @@
             </div>
           </div>
           <div id="success"></div>
-          <button class="btn btn-primary btn-success" id="sendMessageButton">Send Message</button>
+          <span id="button-wrapper" data-toggle="tooltip" data-placement="top" title="Please fill out all fields.">
+            <button class="btn btn-primary btn-success" id="sendMessageButton">Send Message</button>
+          </span>
       </div>
     </div>
   </div>
@@ -74,17 +77,67 @@
     <script>
       var socket=io();
     $(()=>{
+      // Initializing tooltip
+      $('[data-toggle="tooltip"]').tooltip();
+
+      // Disable Send Message button initially
+      $('#sendMessageButton').prop('disabled', true);
+      $('#button-wrapper').css('cursor', 'not-allowed');
+
+      // Validation function for name, email, and message fields
+      function validateInput() {
+        var name = $('#name').val().trim();
+        var email = $('#email').val().trim();
+        var message = $('#message').val().trim();
+        var isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+        // Validate Email Field
+        if (email.length > 0) {
+          if (isEmailValid) {
+            $('#email').css('border-color', 'green');
+            $('#email-error').text('');
+          } else {
+            $('#email').css('border-color', 'red');
+            $('#email-error').text('Invalid email format');
+          }
+        } else {
+          $('#email').css('border-color', '');
+          $('#email-error').text('');
+        }
+
+        if (name && email && message && isEmailValid) {
+          $('#sendMessageButton').prop('disabled', false);
+          $('#button-wrapper').css('cursor', 'pointer');
+          $('#button-wrapper').tooltip('disable');
+        } else {
+          $('#sendMessageButton').prop('disabled', true);
+          $('#button-wrapper').css('cursor', 'not-allowed');
+          $('#button-wrapper').tooltip('enable');
+        }
+      }
+
+      // Attach event listeners
+      $('#name, #email, #message').on('keyup', validateInput);
+
       $("#sendMessageButton").click(()=>{
-        var message={name: $("#name").val(),email: $("#email").val(),
-        message: $("#message").val()}
-        postMessage(message)
+        var message={
+          name: $("#name").val(),
+          email: $("#email").val(),
+          message: $("#message").val()
+        }
+        postMessage(message, () => {
+          $("#message").val('');
+          $("#name").prop('disabled', true);
+          $("#email").prop('disabled', true);
+          $('#sendMessageButton').prop('disabled', true); // Disable after sending
+        })
       })
       getMessages()
     })
     socket.on('message',addMessage);
 
     function addMessage(message){
-      $("#messages").append(`<h5> ${message.name} </h5> <p> ${message.email} </p> <p> ${message.message} </p>`)
+      $("#messages").append(`<h5> ${message.name} </h5> <p> ${message.email} </p> <p> ${message.message} </p><hr style="height:2px;border-width:0;color:gray;background-color:gray">`)
     }
 
     function getMessages(){
@@ -93,8 +146,8 @@
       })
     }
 
-    function postMessage(message){
-      $.post('/messages',message)
+    function postMessage(message, callback){
+      $.post('/messages', message, callback)
     }
 
     </script>

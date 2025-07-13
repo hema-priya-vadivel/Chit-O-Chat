@@ -40,6 +40,9 @@ app.post('/messages', (req, res) => {
 
 io.on('connection',(socket)=>{
   console.log('User Connected');
+  socket.on('disconnect', () => {
+    console.log('User Disconnected');
+  });
 });
 
 mongoose.connect(dbUrl,(err)=>{
