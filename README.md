@@ -1,4 +1,4 @@
-# 💬 Chit-O-Chat
+# [💬 Chit-O-Chat](https://chit-o-chat.onrender.com/)
 
 A real-time chat application built using **Node.js, Express, Socket.IO** and **HTML, CSS, JS** that enables multiple users to connect and communicate instantly in a shared chatroom.
 
